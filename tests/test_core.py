@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "exact_bag_png_mutil_process_slave01.py"
+MODULE_PATH = Path(__file__).resolve().parents[1] / "exact_bag_png_mutil_process.py"
 SPEC = importlib.util.spec_from_file_location("rosbag_video_extractor", MODULE_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None

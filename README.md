@@ -27,7 +27,7 @@ python -m pip install -r requirements.txt
 单个 bag：
 
 ```bash
-python exact_bag_png_mutil_process_slave01.py \
+python exact_bag_png_mutil_process.py \
   --mode single \
   --path /path/to/input.bag \
   --save-dir ./output
@@ -36,7 +36,7 @@ python exact_bag_png_mutil_process_slave01.py \
 批量处理：
 
 ```bash
-python exact_bag_png_mutil_process_slave01.py \
+python exact_bag_png_mutil_process.py \
   --mode batch \
   --path ./bags \
   --save-dir ./output \
@@ -46,7 +46,7 @@ python exact_bag_png_mutil_process_slave01.py \
 按雷达时间戳命名：
 
 ```bash
-python exact_bag_png_mutil_process_slave01.py \
+python exact_bag_png_mutil_process.py \
   --mode single \
   --path ./example.bag \
   --save-dir ./output \
@@ -58,7 +58,7 @@ python exact_bag_png_mutil_process_slave01.py \
 查看完整参数：
 
 ```bash
-python exact_bag_png_mutil_process_slave01.py --help
+python exact_bag_png_mutil_process.py --help
 ```
 
 ## 适配自己的 bag

@@ -14,7 +14,7 @@ from urllib.parse import parse_qs, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR / "frontend"
-SCRIPT_PATH = str(BASE_DIR / "exact_bag_png_mutil_process_slave01.py")
+SCRIPT_PATH = str(BASE_DIR / "exact_bag_png_mutil_process.py")
 HOST = "127.0.0.1"
 PORT = 8765
 
