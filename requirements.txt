@@ -1,0 +1,4 @@
+numpy>=1.23
+opencv-python>=4.7
+rosbags>=0.9
+imageio-ffmpeg>=0.4

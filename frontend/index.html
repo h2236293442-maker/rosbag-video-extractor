@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>自动驾驶数据解析</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-left">
+          <p class="eyebrow">Auto Driving Data Parser</p>
+          <h1>自动驾驶数据解析</h1>
+        </div>
+        <div class="header-right">
+          <span class="header-badge">Local Preview</span>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside class="panel panel-config" aria-label="参数配置面板">
+          <div class="panel-top">
+            <h2>参数设置</h2>
+            <p>配置数据来源与解析规则</p>
+          </div>
+
+          <section class="card">
+            <h3>输入来源</h3>
+            <p class="help-text">单包模式选择一个 Bag；多包模式通过上传目录批量处理。</p>
+            <div class="mode-selector" role="radiogroup" aria-label="输入模式">
+              <label class="mode-option">
+                <input type="radio" name="input-mode" value="single" checked />
+                <span>单包模式</span>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="input-mode" value="multi" />
+                <span>多包模式</span>
+              </label>
+            </div>
+            <div id="single-bag-group">
+              <div class="field-row">
+                <span class="field-label" style="margin: 0;">单包文件</span>
+                <button id="select-single-bag-btn" type="button" class="btn btn-secondary">选择本地 Bag</button>
+              </div>
+              <p id="single-bag-path-display" class="path-display">未选择路径</p>
+            </div>
+            <div id="upload-folder-group" class="is-hidden">
+              <div class="field-row">
+                <span class="field-label" style="margin: 0;">输入目录（多包）</span>
+                <button
+                  id="select-upload-folder-btn"
+                  type="button"
+                  class="btn btn-secondary"
+                  data-folder-type="upload"
+                >
+                  选择本地输入目录
+                </button>
+              </div>
+              <input id="upload-folder-input" type="file" webkitdirectory directory hidden />
+              <p id="upload-path-display" class="path-display">未选择路径</p>
+            </div>
+            <div class="field-row">
+              <span class="field-label" style="margin: 0;">导出文件夹</span>
+              <button
+                id="select-export-folder-btn"
+                type="button"
+                class="btn btn-secondary"
+                data-folder-type="export"
+              >
+                选择导出文件夹
+              </button>
+            </div>
+            <input id="export-folder-input" type="file" webkitdirectory directory hidden />
+            <p id="export-path-display" class="path-display">未选择路径</p>
+            <p id="path-help-text" class="help-text">单包模式：Bag + 本地预览目录；多包模式：输入目录 + 本地预览目录。浏览器弹窗可能显示“上传”字样，但仅本地读取用于预览，不会自动联网提交。</p>
+            <ul id="bag-tag-list" class="tag-list">
+              <li class="tag tag-empty">暂无已选文件</li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <h3>Topic 选择</h3>
+            <p class="help-text">默认提供 4 个相机 Topic，也支持添加自定义 Topic。</p>
+            <div id="topic-checkbox-grid" class="checkbox-grid">
+              <label><input type="checkbox" value="/sensor/camera_front_wide/video" /> /sensor/camera_front_wide/video</label>
+              <label><input type="checkbox" value="/sensor/camera_front_far/video" /> /sensor/camera_front_far/video</label>
+              <label><input type="checkbox" value="/sensor/camera_right_front/video" /> /sensor/camera_right_front/video</label>
+              <label><input type="checkbox" value="/sensor/camera_left_front/video" /> /sensor/camera_left_front/video</label>
+            </div>
+            <div class="topic-custom-row">
+              <input id="custom-topic-input" type="text" placeholder="输入自定义 Topic，如 /sensor/camera_xxx/video" />
+              <button id="add-custom-topic-btn" type="button" class="btn btn-secondary">添加</button>
+            </div>
+            <p id="topic-custom-hint" class="help-text">自定义 Topic 需以 `/` 开头，且不能重复。</p>
+            <p class="field-label">已选 Topic</p>
+            <ul id="topic-tag-list" class="tag-list">
+              <li class="tag tag-empty">暂无已选 Topic</li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <h3>抽帧配置</h3>
+            <label class="switch switch-toggle">
+              <input id="sampling-enabled" type="checkbox" />
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-text">启用抽帧</span>
+            </label>
+            <div id="sampling-detail-group" class="is-hidden">
+              <label class="field-label" for="sample-rate">针数</label>
+              <input id="sample-rate" type="number" min="1" step="1" placeholder="请输入抽帧帧数" disabled />
+              <p id="sampling-status" class="status status-muted">抽帧默认关闭</p>
+            </div>
+          </section>
+
+          <div class="config-actions">
+            <div class="action-row">
+              <button id="run-btn" type="button" class="btn btn-primary btn-run">开始执行解析</button>
+              <button id="stop-btn" type="button" class="btn btn-ghost btn-stop" disabled>停止执行</button>
+            </div>
+          </div>
+        </aside>
+
+        <main class="panel panel-preview" aria-label="预览面板">
+          <div class="panel-top">
+            <h2>可视化预览</h2>
+            <p>实时展示配置结果与执行状态</p>
+          </div>
+
+          <section class="card preview-stage-card">
+            <div class="preview-head">
+              <h3>实时可视化预览</h3>
+              <span id="preview-chip" class="preview-chip">待配置</span>
+            </div>
+            <div class="preview-canvas">
+              <div class="preview-grid"></div>
+              <div class="preview-overlay">
+                <p id="preview-empty-hint" class="preview-empty-hint">请选择导出目录中的图片序列进行预览</p>
+                <div class="preview-image-wrap">
+                  <img id="preview-frame-image" class="preview-frame-image is-hidden" alt="帧预览" />
+                  <div id="preview-no-image" class="preview-no-image">暂无可预览帧</div>
+                </div>
+                <div class="preview-player">
+                  <div class="preview-selectors">
+                    <div class="selector-group">
+                      <label class="field-label" for="preview-bag-select">预览 Bag</label>
+                      <select id="preview-bag-select"></select>
+                    </div>
+                    <div class="selector-group">
+                      <label class="field-label" for="preview-topic-select">预览 Topic</label>
+                      <select id="preview-topic-select"></select>
+                    </div>
+                  </div>
+                  <div class="preview-control-row">
+                    <button id="preview-prev-btn" type="button" class="btn btn-secondary">上一帧</button>
+                    <button id="preview-play-btn" type="button" class="btn btn-secondary">播放</button>
+                    <button id="preview-next-btn" type="button" class="btn btn-secondary">下一帧</button>
+                  </div>
+                  <input id="preview-frame-slider" type="range" min="0" max="0" value="0" />
+                  <div class="preview-meta">
+                    <span id="preview-frame-counter">0 / 0</span>
+                    <span id="preview-frame-name">-</span>
+                  </div>
+                </div>
+                <div class="preview-metrics">
+                  <div class="metric-bag">
+                    <span>Bag Name</span>
+                    <strong id="preview-bag-name" title="未选择">未选择</strong>
+                  </div>
+                  <div>
+                    <span>已解析帧数 (当前 Topic)</span>
+                    <strong id="preview-topic-count">0</strong>
+                  </div>
+                  <div>
+                    <span>抽帧模式</span>
+                    <strong id="preview-sampling-mode">关闭</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="timeline-card" class="card timeline-card is-collapsed">
+            <div class="preview-head">
+              <h3>处理流程</h3>
+              <span id="timeline-status-chip" class="preview-chip">未开始</span>
+            </div>
+            <div class="timeline-content">
+              <p id="timeline-current-text" class="timeline-current-text">等待开始</p>
+              <ul class="timeline-list">
+                <li id="timeline-step-read" class="timeline-step is-pending"><span class="line-dot" data-step="1"></span>读取 Bag</li>
+                <li id="timeline-step-topic" class="timeline-step is-pending"><span class="line-dot" data-step="2"></span>解析 Topic</li>
+                <li id="timeline-step-sample" class="timeline-step is-pending"><span class="line-dot" data-step="3"></span>执行抽帧</li>
+                <li id="timeline-step-export" class="timeline-step is-pending"><span class="line-dot" data-step="4"></span>导出 PNG</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="card log-card">
+            <div class="preview-head">
+              <h3>实时日志</h3>
+              <button id="clear-log-btn" type="button" class="btn btn-ghost">清空</button>
+            </div>
+            <div id="log-panel" class="log-panel"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="validation-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="validation-modal-title">提交校验</h2>
+          <button id="validation-modal-close" class="icon-btn" type="button" aria-label="关闭弹窗">×</button>
+        </div>
+        <p id="validation-modal-desc" class="help-text">正在校验配置项。</p>
+        <ul id="validation-modal-list" class="validation-list"></ul>
+        <div class="modal-actions">
+          <button id="validation-modal-confirm" class="btn btn-primary" type="button">我知道了</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

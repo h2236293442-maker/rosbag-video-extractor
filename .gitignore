@@ -1,0 +1,66 @@
+# ROS bags and generated media can be large or contain sensitive data.
+*.bag
+*.bag.active
+*.bag.orig
+*.db3
+*.mcap
+bags/
+data/
+datasets/
+recordings/
+raw/
+output/
+outputs/
+export/
+exports/
+results/
+Images_resize/
+*.h264
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.pcd
+
+# Runtime logs and local databases
+*.log
+logs/
+*.sqlite
+*.sqlite-*
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+
+# Editors and operating systems
+.DS_Store
+.trae/
+.idea/
+.vscode/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+*.local.json
+*.local.yaml
+*.local.yml
+config.local.*
+
+# Credentials and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+credentials.json
+secrets.*
