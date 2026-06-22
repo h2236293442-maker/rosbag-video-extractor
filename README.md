@@ -1,4 +1,6 @@
-# ROS Bag Video Extractor
+# ROS Bag 视频帧提取工具
+
+[中文](README.md) | [English](README_EN.md)
 
 从 ROS 1 bag 中提取 H.264 相机话题，转码后按相机或雷达时间戳导出 PNG。支持单个 bag、批量处理、多相机话题、雷达时间戳匹配与简单抽帧。
 
